@@ -77,6 +77,15 @@ body {
   border-radius: 12px;
 }
 
+.warning {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin: 0;
+  font-size: 14px;
+}
+
 .field {
   display: flex;
   flex-direction: column;

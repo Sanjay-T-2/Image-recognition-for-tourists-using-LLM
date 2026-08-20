@@ -48,6 +48,8 @@ async def identify(request: IdentifyRequest) -> IdentifyResponse:
         source = "image"
         result = await vision.identify_image(request.image_base64)
         if result is None:
+            # Vision unavailable: the destination comes from the typed text instead.
+            source = "text"
             if not query:
                 raise HTTPException(
                     status_code=422,
@@ -56,7 +58,6 @@ async def identify(request: IdentifyRequest) -> IdentifyResponse:
                         "Type the place name instead."
                     ),
                 )
-            confidence = 0.5
         else:
             query = result.place
             confidence = result.confidence

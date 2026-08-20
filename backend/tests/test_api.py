@@ -43,6 +43,14 @@ def test_identify_image_without_vision_provider_needs_text():
     assert response.status_code == 422
 
 
+def test_identify_image_with_typed_query_is_reported_as_text():
+    response = client.post(
+        "/api/identify", json={"image_base64": "Zm9v", "query": "Taj Mahal", "origin": "Agra"}
+    )
+    assert response.status_code == 200
+    assert response.json()["source"] == "text"
+
+
 def test_route_offers_modes_and_marks_recommendation():
     response = client.post(
         "/api/route",

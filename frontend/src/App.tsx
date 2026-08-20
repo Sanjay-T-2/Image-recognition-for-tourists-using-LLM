@@ -7,6 +7,7 @@ import { QuestionsStep } from './components/QuestionsStep'
 import { StayStep } from './components/StayStep'
 import { TransportStep } from './components/TransportStep'
 import * as api from './lib/api'
+import { isValidDate } from './lib/format'
 import type {
   DestinationInfo,
   IdentifyResponse,
@@ -134,7 +135,7 @@ export default function App() {
             destination_label: identified.destination.name,
             days,
             travellers,
-            start_date: startDate || null,
+            start_date: isValidDate(startDate) ? startDate : null,
             style,
             transport_cost: selected?.cost_min ?? 0,
             currency,
@@ -246,7 +247,7 @@ export default function App() {
             option={selected}
             originName={identified.origin?.name ?? 'Your location'}
             destinationName={identified.destination.name}
-            startDate={startDate}
+            startDate={isValidDate(startDate) ? startDate : ''}
             travellers={travellers}
             onBack={() => setStep('plan')}
           />

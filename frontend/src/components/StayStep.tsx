@@ -1,4 +1,4 @@
-import { addDays, money } from '../lib/format'
+import { addDays, isValidDate, money } from '../lib/format'
 import type { StayEstimateResponse, TransportOption } from '../lib/types'
 
 interface Props {
@@ -29,6 +29,7 @@ export function StayStep({
   onChange,
   onBook,
 }: Props) {
+  const dateValid = isValidDate(startDate)
   return (
     <section className="card">
       <h2>How long are you staying?</h2>
@@ -60,6 +61,8 @@ export function StayStep({
           <input
             id="start"
             type="date"
+            min="1900-01-01"
+            max="2100-12-31"
             value={startDate}
             onChange={(event) => onChange({ startDate: event.target.value })}
           />
@@ -79,9 +82,14 @@ export function StayStep({
           </select>
         </div>
       </div>
-      {startDate && (
+      {dateValid && (
         <p className="muted">
           Trip window: {startDate} → {addDays(startDate, days - 1)}
+        </p>
+      )}
+      {startDate && !dateValid && (
+        <p className="warning">
+          Enter a start date between 1900 and 2100 — the costs below ignore the date until then.
         </p>
       )}
 

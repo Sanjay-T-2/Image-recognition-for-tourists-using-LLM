@@ -20,7 +20,19 @@ export function duration(hours: number): string {
   return minutes ? `${whole}h ${minutes}m` : `${whole}h`
 }
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+
+/** Browser date inputs allow years like 252026, which break every downstream date. */
+export function isValidDate(iso: string): boolean {
+  if (!ISO_DATE.test(iso)) return false
+  const time = Date.parse(iso)
+  if (Number.isNaN(time)) return false
+  const year = Number(iso.slice(0, 4))
+  return year >= 1900 && year <= 2100
+}
+
 export function addDays(iso: string, days: number): string {
+  if (!isValidDate(iso)) return iso
   const date = new Date(iso)
   date.setDate(date.getDate() + days)
   return date.toISOString().slice(0, 10)
