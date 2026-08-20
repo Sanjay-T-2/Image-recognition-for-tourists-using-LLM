@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 from app.main import app  # noqa: E402
 from app.models import StayEstimateRequest  # noqa: E402
-from app.services import geo, planner  # noqa: E402
+from app.services import geo, planner, vision  # noqa: E402
 
 client = TestClient(app)
 
@@ -136,6 +136,13 @@ def test_destination_info_falls_back_offline():
     body = response.json()
     assert body["place"]["name"] == "Taj Mahal"
     assert body["emergency_numbers"]["All emergencies"] == "112"
+
+
+def test_vision_parses_fenced_and_plain_json():
+    fenced = '```json\n{"place": "Taj Mahal", "confidence": 1}\n```'
+    assert vision._parse(fenced) == {"place": "Taj Mahal", "confidence": 1}
+    assert vision._parse('\n\n{"place": "Eiffel Tower"}') == {"place": "Eiffel Tower"}
+    assert vision._parse("I need more context to answer that.") is None
 
 
 def test_currency_defaults_by_country():

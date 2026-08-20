@@ -1,4 +1,5 @@
 import json
+import re
 
 import httpx
 
@@ -10,6 +11,21 @@ PROMPT = (
     '"city": "<city>", "country": "<country>", "confidence": <0-1>, '
     '"summary": "<one sentence about the place>"}'
 )
+
+
+JSON_BLOCK = re.compile(r"\{.*\}", re.DOTALL)
+
+
+def _parse(content: str) -> dict[str, object] | None:
+    """Parse the model reply, tolerating markdown fences and stray prose."""
+    match = JSON_BLOCK.search(content)
+    if not match:
+        return None
+    try:
+        parsed = json.loads(match.group(0))
+    except ValueError:
+        return None
+    return parsed if isinstance(parsed, dict) else None
 
 
 class VisionResult:
@@ -43,30 +59,36 @@ async def identify_image(image_base64: str) -> VisionResult | None:
                 ],
             }
         ],
-        "response_format": {"type": "json_object"},
         "max_tokens": 300,
     }
     try:
-        async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
+        async with httpx.AsyncClient(timeout=settings.vision_timeout) as client:
             response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
+                f"{settings.openai_base_url}/chat/completions",
                 json=payload,
                 headers={"Authorization": f"Bearer {settings.openai_api_key}"},
             )
             response.raise_for_status()
             content = response.json()["choices"][0]["message"]["content"]
-        parsed = json.loads(content)
     except (httpx.HTTPError, KeyError, ValueError):
+        return None
+    parsed = _parse(content)
+    if parsed is None:
         return None
     place = parsed.get("place")
     if not place:
         return None
     location = ", ".join(
-        part for part in [place, parsed.get("city"), parsed.get("country")] if part
+        str(part) for part in [place, parsed.get("city"), parsed.get("country")] if part
     )
+    try:
+        confidence = float(parsed.get("confidence", 0.6))  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        confidence = 0.6
+    summary = parsed.get("summary", "")
     return VisionResult(
         place=location,
-        confidence=float(parsed.get("confidence", 0.6)),
-        summary=parsed.get("summary", ""),
+        confidence=max(0.0, min(1.0, confidence)),
+        summary=str(summary) if summary else "",
         source="llm",
     )
