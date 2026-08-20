@@ -54,8 +54,7 @@ async def identify(request: IdentifyRequest) -> IdentifyResponse:
                 raise HTTPException(
                     status_code=422,
                     detail=(
-                        "Photo analysis is unavailable (no vision provider configured). "
-                        "Type the place name instead."
+                        "Photo analysis is unavailable right now. " "Type the place name instead."
                     ),
                 )
         else:
