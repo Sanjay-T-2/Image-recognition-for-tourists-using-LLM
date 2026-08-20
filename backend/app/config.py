@@ -1,5 +1,22 @@
 import os
 from functools import lru_cache
+from pathlib import Path
+
+ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
+
+
+def load_env_file(path: Path = ENV_FILE) -> None:
+    """Load KEY=VALUE lines from backend/.env without overriding real env vars."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip().strip("'\""))
 
 
 class Settings:
@@ -11,6 +28,7 @@ class Settings:
     """
 
     def __init__(self) -> None:
+        load_env_file()
         self.openai_api_key: str | None = os.getenv("OPENAI_API_KEY") or None
         self.openai_model: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         self.openai_base_url: str = os.getenv(

@@ -58,7 +58,9 @@ npm run dev   # http://localhost:5173, proxies /api to the backend
 
 ## Configuration
 
-Copy `backend/.env.example` and export what you need:
+Copy `backend/.env.example` to `backend/.env` and fill in what you need — the
+backend loads that file on startup (real environment variables win). `.env` is
+git-ignored, so keys never get committed.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
