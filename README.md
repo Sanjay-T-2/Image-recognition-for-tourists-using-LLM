@@ -34,7 +34,7 @@ No API key is required to run the app:
 | Road distance & driving time | OSRM | no |
 | Stations, airports, hospitals, hotels, attractions | Overpass API | no |
 | History / summaries | Wikipedia REST | no |
-| Photo → place identification | OpenAI vision model | `OPENAI_API_KEY` (optional) |
+| Photo → place identification | any OpenAI-compatible vision model | `OPENAI_API_KEY` (optional) |
 
 If a provider is unreachable the app degrades gracefully; with `OFFLINE_MODE=1` it uses a small
 built-in dataset so the whole flow still works without internet.
@@ -58,12 +58,16 @@ npm run dev   # http://localhost:5173, proxies /api to the backend
 
 ## Configuration
 
-Copy `backend/.env.example` and export what you need:
+Copy `backend/.env.example` to `backend/.env` and fill in what you need — the
+backend loads that file on startup (real environment variables win). `.env` is
+git-ignored, so keys never get committed.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `OPENAI_API_KEY` | – | enables photo identification |
-| `OPENAI_MODEL` | `gpt-4o-mini` | vision model |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | any OpenAI-compatible API (e.g. `https://openrouter.ai/api/v1`) |
+| `OPENAI_MODEL` | `gpt-4o-mini` | vision model (e.g. `google/gemma-4-26b-a4b-it:free` on OpenRouter) |
+| `VISION_TIMEOUT` | `90` | seconds to wait for the vision model |
 | `OFFLINE_MODE` | `0` | `1` skips all network calls |
 | `CORS_ORIGINS` | `http://localhost:5173` | comma-separated allowed origins |
 | `CACHE_TTL_SECONDS` | `3600` | in-process response cache TTL |
