@@ -44,23 +44,18 @@ async def identify(request: IdentifyRequest) -> IdentifyResponse:
     summary = ""
     query = (request.query or "").strip()
 
-    if request.image_base64:
-        source = "image"
+    # A typed place name is an explicit choice, so it wins over an attached photo.
+    if request.image_base64 and not query:
         result = await vision.identify_image(request.image_base64)
         if result is None:
-            # Vision unavailable: the destination comes from the typed text instead.
-            source = "text"
-            if not query:
-                raise HTTPException(
-                    status_code=422,
-                    detail=(
-                        "Photo analysis is unavailable right now. " "Type the place name instead."
-                    ),
-                )
-        else:
-            query = result.place
-            confidence = result.confidence
-            summary = result.summary
+            raise HTTPException(
+                status_code=422,
+                detail="Photo analysis is unavailable right now. Type the place name instead.",
+            )
+        source = "image"
+        query = result.place
+        confidence = result.confidence
+        summary = result.summary
 
     if not query:
         raise HTTPException(status_code=422, detail="Provide a place name or a photo.")

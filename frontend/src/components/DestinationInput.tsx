@@ -76,6 +76,9 @@ export function DestinationInput({ loading, onSubmit }: Props) {
           onChange={(event) => handleFile(event.target.files?.[0])}
         />
         {preview && <img className="preview" src={preview} alt="Selected place" />}
+        {preview && query.trim() && (
+          <p className="muted">The typed destination is used — clear it to plan from the photo.</p>
+        )}
       </div>
 
       <div className="field">
