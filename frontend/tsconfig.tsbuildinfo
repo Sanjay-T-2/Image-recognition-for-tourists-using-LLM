@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/BookingStep.tsx","./src/components/DestinationInput.tsx","./src/components/InfoPanel.tsx","./src/components/QuestionsStep.tsx","./src/components/StayStep.tsx","./src/components/TransportStep.tsx","./src/lib/api.ts","./src/lib/format.ts","./src/lib/types.ts","./vite.config.ts"],"version":"5.9.3"}
